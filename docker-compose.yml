@@ -1,0 +1,13 @@
+version: '3.8'
+name: sistemacadastropet
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: sistemacadastropet_mysql
+    environment:
+      MYSQL_DATABASE: sistemacadastropet
+      MYSQL_ROOT_PASSWORD: manager
+      MYSQL_USER: usuario
+      MYSQL_PASSWORD: senha123
+    ports:
+      - "3306:3306"
