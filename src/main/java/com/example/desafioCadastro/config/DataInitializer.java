@@ -1,7 +1,7 @@
 package com.example.desafioCadastro.config;
 
 import com.example.desafioCadastro.model.Pergunta;
-import com.example.desafioCadastro.repository.PerguntaRespository;
+import com.example.desafioCadastro.repository.PerguntaRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
@@ -10,15 +10,15 @@ import java.util.List;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private PerguntaRespository perguntaRespository;
+    private PerguntaRepository perguntaRepository;
 
-    public DataInitializer(PerguntaRespository perguntaRespository) {
-        this.perguntaRespository = perguntaRespository;
+    public DataInitializer(PerguntaRepository perguntaRepository) {
+        this.perguntaRepository = perguntaRepository;
     }
 
     @Override
     public void run(String... args) throws Exception {
-        if (perguntaRespository.count() == 0){
+        if (perguntaRepository.count() == 0){
             List<Pergunta> perguntasIniciais = List.of(
                     new Pergunta("Qual o nome e sobrenome do pet?"),
                     new Pergunta("Qual o tipo do pet (Cachorro/Gato)?"),
@@ -29,7 +29,7 @@ public class DataInitializer implements CommandLineRunner {
                     new Pergunta("Qual a raça do pet?")
             );
 
-            perguntaRespository.saveAll(perguntasIniciais);
+            perguntaRepository.saveAll(perguntasIniciais);
             System.out.printf("Perguntas iniciais criadas com sucesso!");
         } else {
             System.out.printf("Perguntas já existentes, nenhuma inserção feita");

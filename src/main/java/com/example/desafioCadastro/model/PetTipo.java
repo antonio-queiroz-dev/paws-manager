@@ -1,8 +1,8 @@
 package com.example.desafioCadastro.model;
 
 public enum PetTipo {
-    CACHORRO("Cachorro"),
-    GATO("Gato");
+    CACHORRO("CACHORRO"),
+    GATO("GATO");
 
     private final String petTipo;
 

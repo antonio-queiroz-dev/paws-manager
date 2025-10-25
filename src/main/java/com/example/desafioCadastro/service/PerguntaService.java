@@ -1,7 +1,7 @@
 package com.example.desafioCadastro.service;
 
 import com.example.desafioCadastro.model.Pergunta;
-import com.example.desafioCadastro.repository.PerguntaRespository;
+import com.example.desafioCadastro.repository.PerguntaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -9,13 +9,13 @@ import java.util.List;
 @Service
 public class PerguntaService {
 
-    private PerguntaRespository perguntaRespository;
+    private PerguntaRepository perguntaRepository;
 
-    public PerguntaService(PerguntaRespository perguntaRespository){
-        this.perguntaRespository = perguntaRespository;
+    public PerguntaService(PerguntaRepository perguntaRepository){
+        this.perguntaRepository = perguntaRepository;
     }
 
     public List<Pergunta> listarPerguntas() {
-        return perguntaRespository.findAll();
+        return perguntaRepository.findAll();
     }
 }

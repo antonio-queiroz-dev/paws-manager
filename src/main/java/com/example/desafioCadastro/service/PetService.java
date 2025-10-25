@@ -1,7 +1,8 @@
 package com.example.desafioCadastro.service;
 
 import com.example.desafioCadastro.model.Pet;
-import com.example.desafioCadastro.repository.PetRespository;
+import com.example.desafioCadastro.repository.PetRepository;
+import com.example.desafioCadastro.utils.PetValidator;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,22 +11,26 @@ import java.util.Optional;
 @Service
 public class PetService {
 
-    private final PetRespository petRespository;
+    private final PetRepository petRepository;
+    private final PetValidator petValidator;
 
-    public PetService(PetRespository petRespository) {
-        this.petRespository = petRespository;
+    public PetService(PetRepository petRepository, PetValidator petValidator) {
+        this.petRepository = petRepository;
+        this.petValidator = petValidator;
     }
 
     public List<Pet> listarPets() {
-        return petRespository.findAll();
+        return petRepository.findAll();
     }
 
     public Pet registrarPet(Pet pet) {
-        return petRespository.save(pet);
+        petValidator.validar(pet);
+
+        return petRepository.save(pet);
     }
 
     public Pet updatePet(Long id, Pet petDetails) {
-        Optional<Pet> optionalPet = petRespository.findById(id);
+        Optional<Pet> optionalPet = petRepository.findById(id);
 
         if (optionalPet.isEmpty()) {
             throw new RuntimeException("Pet com o ID: "+ id + " não encontrado");
@@ -39,6 +44,6 @@ public class PetService {
         existingPet.setPeso(petDetails.getPeso());
         existingPet.setRaca(petDetails.getRaca());
 
-        return petRespository.save(existingPet);
+        return petRepository.save(existingPet);
     }
 }
