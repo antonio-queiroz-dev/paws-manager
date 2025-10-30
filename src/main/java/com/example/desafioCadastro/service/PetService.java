@@ -2,6 +2,7 @@ package com.example.desafioCadastro.service;
 
 import com.example.desafioCadastro.dto.PetCreateDto;
 import com.example.desafioCadastro.dto.PetUpdateDto;
+import com.example.desafioCadastro.exceptions.RecursoNaoEcontradoException;
 import com.example.desafioCadastro.model.Pet;
 import com.example.desafioCadastro.model.PetSexo;
 import com.example.desafioCadastro.repository.PetRepository;
@@ -46,7 +47,7 @@ public class PetService {
         Optional<Pet> optionalPet = petRepository.findById(id);
 
         if (optionalPet.isEmpty()) {
-            throw new RuntimeException("Pet com o ID: " + id + " não encontrado");
+            throw new RecursoNaoEcontradoException("Pet com o ID: " + id + " não encontrado");
         }
 
         Pet existingPet = optionalPet.get();
@@ -81,5 +82,13 @@ public class PetService {
         }
 
         return petRepository.findByNomePetContainingIgnoreCase(termo);
+    }
+
+    public void deletarPet(Long id) {
+
+        if (!petRepository.existsById(id)) {
+            throw new RecursoNaoEcontradoException("Produto com o id: " + id + " não encontrado!");
+        }
+        petRepository.deleteById(id);
     }
 }

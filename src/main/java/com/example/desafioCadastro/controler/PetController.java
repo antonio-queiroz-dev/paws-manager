@@ -56,4 +56,10 @@ public class PetController {
         List<Pet> petList = petService.buscar(termo);
         return ResponseEntity.ok(petList);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarPet(@PathVariable Long id) {
+        petService.deletarPet(id);
+        return ResponseEntity.noContent().build();
+    }
 }
