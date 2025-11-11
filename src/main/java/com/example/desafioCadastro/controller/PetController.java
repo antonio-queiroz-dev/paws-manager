@@ -1,4 +1,4 @@
-package com.example.desafioCadastro.controler;
+package com.example.desafioCadastro.controller;
 
 import com.example.desafioCadastro.dto.PetCreateDto;
 import com.example.desafioCadastro.dto.PetResponseDto;

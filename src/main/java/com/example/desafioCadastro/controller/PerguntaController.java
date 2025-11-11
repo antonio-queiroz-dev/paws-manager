@@ -1,4 +1,4 @@
-package com.example.desafioCadastro.controler;
+package com.example.desafioCadastro.controller;
 
 import com.example.desafioCadastro.model.Pergunta;
 import com.example.desafioCadastro.service.PerguntaService;
