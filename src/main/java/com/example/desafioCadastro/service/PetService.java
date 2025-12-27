@@ -9,7 +9,6 @@ import com.example.desafioCadastro.model.PetSexo;
 import com.example.desafioCadastro.repository.PetRepository;
 import com.example.desafioCadastro.utils.PetValidator;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -99,11 +98,11 @@ public class PetService {
         List<Pet> listaRetorno;
 
         if (termo.equalsIgnoreCase("macho") || termo.equalsIgnoreCase("femea")) {
-            listaRetorno =  petRepository.findByPetSexo(PetSexo.valueOf(termo.toUpperCase()));
+            listaRetorno = petRepository.findByPetSexo(PetSexo.valueOf(termo.toUpperCase()));
         }
 
         if (termo.matches("\\d+")) {
-            listaRetorno =  petRepository.findByIdadeContainingIgnoreCase(termo);
+            listaRetorno = petRepository.findByIdadeContainingIgnoreCase(termo);
         }
         listaRetorno = petRepository.findByNomePetContainingIgnoreCase(termo);
 

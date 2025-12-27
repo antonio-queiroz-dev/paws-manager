@@ -22,7 +22,8 @@ public class TutorService {
     }
 
     public List<TutorResponseDto> listarTutores() {
-        return tutorRepository.findAll().stream().map(this::toResponseDto).toList();
+        return tutorRepository.findAll()
+                .stream().map(this::toResponseDto).toList();
     }
 
     private TutorResponseDto toResponseDto(Tutor tutor) {

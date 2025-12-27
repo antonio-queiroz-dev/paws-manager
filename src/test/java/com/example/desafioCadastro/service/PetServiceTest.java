@@ -1,6 +1,7 @@
 package com.example.desafioCadastro.service;
 
 import com.example.desafioCadastro.dto.PetCreateDto;
+import com.example.desafioCadastro.dto.PetResponseDto;
 import com.example.desafioCadastro.dto.PetUpdateDto;
 import com.example.desafioCadastro.exceptions.RecursoNaoEcontradoException;
 import com.example.desafioCadastro.model.*;
@@ -44,7 +45,7 @@ class PetServiceTest {
         Pet pet = new Pet(1L, "José caça rato", PetTipo.GATO, PetSexo.MACHO, endereco, "5", "4", "Siames", tutor);
 
         when(petRepository.findAll()).thenReturn(Collections.singletonList(pet));
-        List<Pet> pets = petService.listarPets();
+        List<PetResponseDto> pets = petService.listarPets();
 
         Assertions.assertEquals(1, pets.size());
     }
@@ -54,7 +55,7 @@ class PetServiceTest {
     void deveRetornarListaVazia() {
         when(petRepository.findAll()).thenReturn(List.of());
 
-        List<Pet> pets = petService.listarPets();
+        List<PetResponseDto> pets = petService.listarPets();
 
         Assertions.assertEquals(0,pets.size());
 
