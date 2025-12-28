@@ -67,21 +67,28 @@ public class TutorService {
         return tutorRepository.save(tutorExistente);
     }
 
-    public List<TutorResponseDto> buscarTutor(String termo) {
+    public List<TutorResponseDto> buscarPorNome(String nome) {
         List<Tutor> listaRetorno;
 
-        if (termo == null || termo.isBlank()) {
+        if (nome == null || nome.isBlank()) {
             listaRetorno = tutorRepository.findAll();
         }
 
-        if (termo.contains("@")) {
-            listaRetorno = tutorRepository.findByEmailContainingIgnoreCase(termo);
-        }
-
-        listaRetorno = tutorRepository.findByNomeContainingIgnoreCase(termo);
-
+        listaRetorno = tutorRepository.findByNomeContainingIgnoreCase(nome);
         return listaRetorno.stream().map(this::toResponseDto).toList();
     }
+
+    public List<TutorResponseDto> buscarPorEmail(String email) {
+        List<Tutor> listaRetorno;
+
+        if (email == null || email.isBlank()) {
+            listaRetorno = tutorRepository.findAll();
+        }
+
+        listaRetorno = tutorRepository.findByEmailContainingIgnoreCase(email);
+        return listaRetorno.stream().map(this::toResponseDto).toList();
+    }
+
 
     @CacheEvict(value = "tutor", allEntries = true)
     public void deletarTutor(Long id) {
@@ -91,6 +98,4 @@ public class TutorService {
         }
         tutorRepository.deleteById(id);
     }
-
-
 }

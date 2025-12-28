@@ -47,9 +47,15 @@ public class TutorController {
         return ResponseEntity.ok(updateTutor);
     }
 
-    @GetMapping("/buscar")
-    public ResponseEntity<List<TutorResponseDto>> buscarPet(@RequestParam String termo) {
-        List<TutorResponseDto> tutoresList = tutorService.buscarTutor(termo);
+    @GetMapping("/buscar/nome")
+    public ResponseEntity<List<TutorResponseDto>> buscarPorNome(@RequestParam String nome) {
+        List<TutorResponseDto> tutoresList = tutorService.buscarPorNome(nome);
+        return ResponseEntity.ok(tutoresList);
+    }
+
+    @GetMapping("/buscar/email")
+    public ResponseEntity<List<TutorResponseDto>> buscarPorEmail(@RequestParam String email) {
+        List<TutorResponseDto> tutoresList = tutorService.buscarPorEmail(email);
         return ResponseEntity.ok(tutoresList);
     }
 
