@@ -89,6 +89,11 @@ public class TutorService {
         return listaRetorno.stream().map(this::toResponseDto).toList();
     }
 
+    public Tutor buscarPorId(Long id) {
+        return tutorRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEcontradoException("Tutor com o Id:" + id + " não encontrado"));
+    }
+
 
     @CacheEvict(value = "tutor", allEntries = true)
     public void deletarTutor(Long id) {

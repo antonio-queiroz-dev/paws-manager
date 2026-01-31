@@ -5,6 +5,7 @@ import com.example.desafioCadastro.dto.TutorResponseDto;
 import com.example.desafioCadastro.dto.TutorUpdateDto;
 import com.example.desafioCadastro.model.Tutor;
 import com.example.desafioCadastro.service.TutorService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class TutorController {
     }
 
     @PostMapping
-    public ResponseEntity<TutorResponseDto> cadastrarTutor(@RequestBody TutorCreateDto tutorCreateDto) {
+    public ResponseEntity<TutorResponseDto> cadastrarTutor(@Valid @RequestBody TutorCreateDto tutorCreateDto) {
         Tutor novoTutor = tutorService.registrarTutor(tutorCreateDto);
 
         TutorResponseDto responseDto = new TutorResponseDto(
@@ -42,9 +43,16 @@ public class TutorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Tutor> updateTutor(@PathVariable Long id, @RequestBody TutorUpdateDto tutorUpdateDto) {
+    public ResponseEntity<TutorResponseDto> updateTutor(@PathVariable Long id, @RequestBody TutorUpdateDto tutorUpdateDto) {
         Tutor updateTutor = tutorService.updateTutor(id, tutorUpdateDto);
-        return ResponseEntity.ok(updateTutor);
+
+        TutorResponseDto responseDto = new TutorResponseDto(
+                updateTutor.getId(),
+                updateTutor.getNome(),
+                updateTutor.getEmail(),
+                updateTutor.getTelefone()
+        );
+        return ResponseEntity.ok(responseDto);
     }
 
     @GetMapping("/buscar/nome")
@@ -57,6 +65,20 @@ public class TutorController {
     public ResponseEntity<List<TutorResponseDto>> buscarPorEmail(@RequestParam String email) {
         List<TutorResponseDto> tutoresList = tutorService.buscarPorEmail(email);
         return ResponseEntity.ok(tutoresList);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TutorResponseDto> buscarPorId(@PathVariable Long id) {
+        Tutor tutor = tutorService.buscarPorId(id);
+
+        TutorResponseDto tutorResponseDto = new TutorResponseDto(
+                tutor.getId(),
+                tutor.getNome(),
+                tutor.getEmail(),
+                tutor.getTelefone()
+        );
+        return ResponseEntity.ok(tutorResponseDto);
+
     }
 
     @DeleteMapping("/{id}")
