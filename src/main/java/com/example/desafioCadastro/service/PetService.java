@@ -6,12 +6,15 @@ import com.example.desafioCadastro.dto.PetUpdateDto;
 import com.example.desafioCadastro.exceptions.RecursoNaoEcontradoException;
 import com.example.desafioCadastro.model.Pet;
 import com.example.desafioCadastro.model.PetSexo;
+import com.example.desafioCadastro.model.Tutor;
 import com.example.desafioCadastro.repository.PetRepository;
+import com.example.desafioCadastro.repository.TutorRepository;
 import com.example.desafioCadastro.utils.PetValidator;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,10 +23,12 @@ public class PetService {
 
     private final PetRepository petRepository;
     private final PetValidator petValidator;
+    private final TutorRepository tutorRepository;
 
-    public PetService(PetRepository petRepository, PetValidator petValidator) {
+    public PetService(PetRepository petRepository, PetValidator petValidator, TutorRepository tutorRepository) {
         this.petRepository = petRepository;
         this.petValidator = petValidator;
+        this.tutorRepository = tutorRepository;
     }
 
     @Cacheable(value = "pets")
@@ -49,6 +54,13 @@ public class PetService {
     public Pet registrarPet(PetCreateDto petCreate) {
         petValidator.validarPetCreate(petCreate);
 
+        if (petCreate.getTutorId() == null) {
+            throw new RecursoNaoEcontradoException("Tutor deve ser informado");
+        }
+
+        Tutor tutor = tutorRepository.findById(petCreate.getTutorId())
+                .orElseThrow(()-> new RecursoNaoEcontradoException("Tutor não encontrado"));
+
         Pet pet = new Pet();
         pet.setNomePet(petCreate.getNomePet());
         pet.setPetTipo(petCreate.getPetTipo());
@@ -57,6 +69,7 @@ public class PetService {
         pet.setIdade(petCreate.getIdade());
         pet.setPeso(petCreate.getPeso());
         pet.setRaca(petCreate.getRaca());
+        pet.setTutor(tutor);
 
         return petRepository.save(pet);
     }
@@ -125,6 +138,44 @@ public class PetService {
 
         listarRetorno = petRepository.findByIdadeContainingIgnoreCase(idade);
         return listarRetorno.stream().map(this::toResponseDto).toList();
+    }
+
+    public Pet buscarPorId(Long id) {
+        return petRepository.findById(id)
+                .orElseThrow(() -> new RecursoNaoEcontradoException("Pet com o ID: " + id + " não encontrado"));
+    }
+
+    public List<PetResponseDto> buscarPetsPorTutorId(Long tutorId) {
+
+        if (!tutorRepository.existsById(tutorId)) {
+            throw new RecursoNaoEcontradoException("Tutor com o ID: " + tutorId + " não encontrado");
+        }
+
+        List<Pet> pets = petRepository.findByTutorId(tutorId);
+
+        List<PetResponseDto> resultado = new ArrayList<>();
+
+        for (Pet pet: pets) {
+            PetResponseDto petResponseDto = converteParaDto(pet);
+            resultado.add(petResponseDto);
+        }
+
+        return resultado;
+
+    }
+
+    private PetResponseDto converteParaDto(Pet pet) {
+        return new PetResponseDto(
+                pet.getId(),
+                pet.getNomePet(),
+                pet.getPetTipo(),
+                pet.getPetSexo(),
+                pet.getPetEndereco(),
+                pet.getIdade(),
+                pet.getPeso(),
+                pet.getRaca(),
+                pet.getTutor() != null ? pet.getTutor().getId() : null
+        );
     }
 
     @CacheEvict(value = "pets", allEntries = true)

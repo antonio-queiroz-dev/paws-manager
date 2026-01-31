@@ -40,8 +40,8 @@ public class PetController {
                 novoPet.getIdade(),
                 novoPet.getPeso(),
                 novoPet.getRaca(),
-                novoPet.getTutor().getId()
-        );
+                petdto.getTutorId()
+                );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -69,6 +69,33 @@ public class PetController {
         List<PetResponseDto> petList = petService.buscarPorIdade(idade);
         return ResponseEntity.ok(petList);
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<PetResponseDto> buscarPorId(@PathVariable Long id) {
+        Pet pet = petService.buscarPorId(id);
+
+        PetResponseDto responseDto = new PetResponseDto(
+                pet.getId(),
+                pet.getNomePet(),
+                pet.getPetTipo(),
+                pet.getPetSexo(),
+                pet.getPetEndereco(),
+                pet.getIdade(),
+                pet.getPeso(),
+                pet.getRaca(),
+                pet.getTutor() != null ? pet.getTutor().getId() : null
+        );
+        return ResponseEntity.ok(responseDto);
+
+    }
+
+    @GetMapping("/tutor/{tutorId}")
+    public ResponseEntity<List<PetResponseDto>> buscarPetsPorTutorId(@PathVariable Long tutorId) {
+        List<PetResponseDto> petList = petService.buscarPetsPorTutorId(tutorId);
+        return ResponseEntity.ok(petList);
+    }
+
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarPet(@PathVariable Long id) {
