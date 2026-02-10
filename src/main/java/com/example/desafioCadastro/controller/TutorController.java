@@ -43,7 +43,7 @@ public class TutorController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TutorResponseDto> updateTutor(@PathVariable Long id, @RequestBody TutorUpdateDto tutorUpdateDto) {
+    public ResponseEntity<TutorResponseDto> updateTutor(@Valid @PathVariable Long id, @RequestBody TutorUpdateDto tutorUpdateDto) {
         Tutor updateTutor = tutorService.updateTutor(id, tutorUpdateDto);
 
         TutorResponseDto responseDto = new TutorResponseDto(
