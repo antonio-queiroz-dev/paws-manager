@@ -6,7 +6,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
+@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
@@ -14,23 +17,24 @@ public abstract class BaseIntegrationTest {
     @LocalServerPort
     protected int port;
 
-    static MySQLContainer<?> mySQLContainer = new MySQLContainer<>("mysql:8.0")
-            .withDatabaseName("testedb")
-            .withUsername("test")
-            .withPassword("test");
-
-    static {
-        mySQLContainer.start();
-    }
+    @Container
+    static MySQLContainer<?> mySQLContainer =
+            new MySQLContainer<>("mysql:8.0")
+                    .withDatabaseName("testedb")
+                    .withUsername("test")
+                    .withPassword("test");
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.datasource.url", mySQLContainer::getJdbcUrl);
         registry.add("spring.datasource.username", mySQLContainer::getUsername);
         registry.add("spring.datasource.password", mySQLContainer::getPassword);
+
+        registry.add("spring.jpa.hibernate.ddl-auto", () -> "create-drop");
+        registry.add("spring.sql.init.mode", () -> "never");
     }
 
-    protected String getBaseurl() {
+    protected String getBaseUrl() {
         return "http://localhost:" + port;
     }
 }
