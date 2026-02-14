@@ -9,7 +9,6 @@ import com.example.gestaoPetApi.model.PetSexo;
 import com.example.gestaoPetApi.model.Tutor;
 import com.example.gestaoPetApi.repository.PetRepository;
 import com.example.gestaoPetApi.repository.TutorRepository;
-import com.example.gestaoPetApi.utils.PetValidator;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -22,12 +21,10 @@ import java.util.Optional;
 public class PetService {
 
     private final PetRepository petRepository;
-    private final PetValidator petValidator;
     private final TutorRepository tutorRepository;
 
-    public PetService(PetRepository petRepository, PetValidator petValidator, TutorRepository tutorRepository) {
+    public PetService(PetRepository petRepository, TutorRepository tutorRepository) {
         this.petRepository = petRepository;
-        this.petValidator = petValidator;
         this.tutorRepository = tutorRepository;
     }
 
@@ -52,23 +49,21 @@ public class PetService {
 
     @CacheEvict(value = "pets", allEntries = true)
     public Pet registrarPet(PetCreateDto petCreate) {
-        petValidator.validarPetCreate(petCreate);
-
-        if (petCreate.getTutorId() == null) {
+        if (petCreate.tutorId() == null) {
             throw new RecursoNaoEcontradoException("Tutor deve ser informado");
         }
 
-        Tutor tutor = tutorRepository.findById(petCreate.getTutorId())
+        Tutor tutor = tutorRepository.findById(petCreate.tutorId())
                 .orElseThrow(()-> new RecursoNaoEcontradoException("Tutor não encontrado"));
 
         Pet pet = new Pet();
-        pet.setNomePet(petCreate.getNomePet());
-        pet.setPetTipo(petCreate.getPetTipo());
-        pet.setPetSexo(petCreate.getPetSexo());
-        pet.setPetEndereco(petCreate.getPetEndereco());
-        pet.setIdade(petCreate.getIdade());
-        pet.setPeso(petCreate.getPeso());
-        pet.setRaca(petCreate.getRaca());
+        pet.setNomePet(petCreate.nomePet());
+        pet.setPetTipo(petCreate.petTipo());
+        pet.setPetSexo(petCreate.petSexo());
+        pet.setPetEndereco(petCreate.petEndereco());
+        pet.setIdade(petCreate.idade());
+        pet.setPeso(petCreate.peso());
+        pet.setRaca(petCreate.raca());
         pet.setTutor(tutor);
 
         return petRepository.save(pet);
@@ -85,22 +80,18 @@ public class PetService {
         Pet existingPet = optionalPet.get();
 
         if (petDetails.nomePet() != null) {
-            petValidator.validarNome(petDetails.nomePet());
             existingPet.setNomePet(petDetails.nomePet());
         }
         if (petDetails.petEndereco() != null) {
             existingPet.setPetEndereco(petDetails.petEndereco());
         }
         if (petDetails.idade() != null) {
-            petValidator.validarIdade(petDetails.idade());
             existingPet.setIdade(petDetails.idade());
         }
         if (petDetails.peso() != null) {
-            petValidator.validarPeso(petDetails.peso());
             existingPet.setPeso(petDetails.peso());
         }
         if (petDetails.raca() != null) {
-            petValidator.validarRaca(petDetails.raca());
             existingPet.setRaca(petDetails.raca());
         }
 
@@ -129,14 +120,15 @@ public class PetService {
         return listaRetorno.stream().map(this::toResponseDto).toList();
     }
 
-    public List<PetResponseDto> buscarPorIdade(String idade) {
+    public List<PetResponseDto> buscarPorIdade(Integer idade) {
         List<Pet> listarRetorno;
 
-        if (idade == null || idade.isBlank()) {
+        if (idade == null) {
             listarRetorno = petRepository.findAll();
+        } else {
+            listarRetorno = petRepository.findByIdade(idade);
         }
 
-        listarRetorno = petRepository.findByIdadeContainingIgnoreCase(idade);
         return listarRetorno.stream().map(this::toResponseDto).toList();
     }
 

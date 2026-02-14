@@ -2,6 +2,8 @@ package com.example.gestaoPetApi.model;
 
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "pets")
 public class Pet {
@@ -21,8 +23,8 @@ public class Pet {
     @Embedded
     private PetEndereco petEndereco;
 
-    private String idade;
-    private String peso;
+    private Integer idade;
+    private BigDecimal peso;
     private String raca;
 
     @ManyToOne
@@ -32,7 +34,7 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(long id, String nomePet, PetTipo petTipo, PetSexo petSexo, PetEndereco petEndereco, String idade, String peso, String raca, Tutor tutor) {
+    public Pet(long id, String nomePet, PetTipo petTipo, PetSexo petSexo, PetEndereco petEndereco, Integer idade, BigDecimal peso, String raca, Tutor tutor) {
         this.id = id;
         this.nomePet = nomePet;
         this.petTipo = petTipo;
@@ -80,19 +82,19 @@ public class Pet {
         this.petEndereco = petEndereco;
     }
 
-    public String getIdade() {
+    public Integer getIdade() {
         return idade;
     }
 
-    public void setIdade(String idade) {
+    public void setIdade(Integer idade) {
         this.idade = idade;
     }
 
-    public String getPeso() {
+    public BigDecimal getPeso() {
         return peso;
     }
 
-    public void setPeso(String peso) {
+    public void setPeso(BigDecimal peso) {
         this.peso = peso;
     }
 

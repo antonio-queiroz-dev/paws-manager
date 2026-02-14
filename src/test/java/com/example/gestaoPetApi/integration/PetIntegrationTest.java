@@ -16,6 +16,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.math.BigDecimal;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -56,8 +58,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
                 PetTipo.GATO,
                 PetSexo.MACHO,
                 endereco,
-                "5",
-                "4",
+                5,
+                new BigDecimal("4.0"),
                 "Siames",
                 tutorSalvo.getId()
         );
@@ -87,8 +89,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
                 PetTipo.GATO,
                 PetSexo.MACHO,
                 endereco,
-                "5",
-                "4",
+                5,
+                new BigDecimal("4.0"),
                 "Siames",
                 999L
         );
@@ -110,14 +112,13 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         endereco.setRua("Rua das Acácias");
         endereco.setCidade("Belo Horizonte");
         endereco.setNumeroCasa("55");
-
         PetCreateDto request = new PetCreateDto(
                 "",
                 PetTipo.GATO,
                 PetSexo.MACHO,
                 endereco,
-                "25",
-                "70",
+                25,
+                new BigDecimal("70.0"),
                 "Siames",
                 999L
         );
@@ -149,8 +150,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         petSalvo.setPetTipo(PetTipo.GATO);
         petSalvo.setPetSexo(PetSexo.MACHO);
         petSalvo.setPetEndereco(endereco);
-        petSalvo.setIdade("5");
-        petSalvo.setPeso("4");
+        petSalvo.setIdade(5);
+        petSalvo.setPeso(new BigDecimal("4.0"));
         petSalvo.setRaca("Siames");
         petSalvo.setTutor(tutorSalvo);
         petRepository.save(petSalvo);
@@ -184,8 +185,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         pet1Tutor1.setPetTipo(PetTipo.GATO);
         pet1Tutor1.setPetSexo(PetSexo.MACHO);
         pet1Tutor1.setPetEndereco(endereco);
-        pet1Tutor1.setIdade("5");
-        pet1Tutor1.setPeso("4");
+        pet1Tutor1.setIdade(5);
+        pet1Tutor1.setPeso(new BigDecimal("4.0"));
         pet1Tutor1.setRaca("Siames");
         pet1Tutor1.setTutor(tutorSalvo);
 
@@ -207,8 +208,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         pet1tutor2.setPetTipo(PetTipo.GATO);
         pet1tutor2.setPetSexo(PetSexo.FEMEA);
         pet1tutor2.setPetEndereco(endereco2);
-        pet1tutor2.setIdade("8");
-        pet1tutor2.setPeso("5");
+        pet1tutor2.setIdade(8);
+        pet1tutor2.setPeso(new BigDecimal("5.0"));
         pet1tutor2.setRaca("Siames");
         pet1tutor2.setTutor(tutorSalvo2);
 
@@ -243,8 +244,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         pet1Tutor1.setPetTipo(PetTipo.GATO);
         pet1Tutor1.setPetSexo(PetSexo.MACHO);
         pet1Tutor1.setPetEndereco(endereco);
-        pet1Tutor1.setIdade("5");
-        pet1Tutor1.setPeso("4");
+        pet1Tutor1.setIdade(5);
+        pet1Tutor1.setPeso(new BigDecimal("4.0"));
         pet1Tutor1.setRaca("Siames");
         pet1Tutor1.setTutor(tutorSalvo);
 
@@ -255,8 +256,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         pet2tutor1.setPetTipo(PetTipo.CACHORRO);
         pet2tutor1.setPetSexo(PetSexo.MACHO);
         pet2tutor1.setPetEndereco(endereco);
-        pet2tutor1.setIdade("10");
-        pet2tutor1.setPeso("9");
+        pet2tutor1.setIdade(10);
+        pet2tutor1.setPeso(new BigDecimal("9.0"));
         pet2tutor1.setRaca("Caramelo");
         pet2tutor1.setTutor(tutorSalvo);
 
@@ -278,8 +279,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         pet1tutor2.setPetTipo(PetTipo.GATO);
         pet1tutor2.setPetSexo(PetSexo.FEMEA);
         pet1tutor2.setPetEndereco(endereco2);
-        pet1tutor2.setIdade("8");
-        pet1tutor2.setPeso("5");
+        pet1tutor2.setIdade(8);
+        pet1tutor2.setPeso(new BigDecimal("5.0"));
         pet1tutor2.setRaca("Siames");
         pet1tutor2.setTutor(tutorSalvo2);
 
@@ -314,8 +315,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         petSalvo.setPetTipo(PetTipo.GATO);
         petSalvo.setPetSexo(PetSexo.MACHO);
         petSalvo.setPetEndereco(endereco);
-        petSalvo.setIdade("5");
-        petSalvo.setPeso("4");
+        petSalvo.setIdade(5);
+        petSalvo.setPeso(new BigDecimal("4"));
         petSalvo.setRaca("Siames");
         petSalvo.setTutor(tutorSalvo);
         Pet petAtualizado = petRepository.save(petSalvo);
@@ -328,8 +329,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         PetUpdateDto dadosAtualizados = new PetUpdateDto(
                 "José atualizado",
                 enderecoAtualizado,
-                "6",
-                "7",
+                6,
+                new BigDecimal("7"),
                 "Persa"
         );
         HttpEntity<PetUpdateDto> requestEntity = new HttpEntity<>(dadosAtualizados);
@@ -347,8 +348,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         assertThat(response.getBody().petEndereco().getCidade().equals("cidade atualizada"));
         assertThat(response.getBody().petEndereco().getNumeroCasa().equals("55"));
         assertThat(response.getBody().raca()).isEqualTo("Persa");
-        assertThat(response.getBody().idade()).isEqualTo("6");
-        assertThat(response.getBody().peso()).isEqualTo("7");
+        assertThat(response.getBody().idade()).isEqualTo(6);
+        assertThat(response.getBody().peso()).isEqualTo(new BigDecimal("7"));
     }
 
     @Test
@@ -362,8 +363,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         PetUpdateDto dadosAtualizados = new PetUpdateDto(
                 "José atualizado",
                 enderecoAtualizado,
-                "6",
-                "7",
+                6,
+                new BigDecimal("7"),
                 "Persa"
         );
 
@@ -396,8 +397,8 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         pet.setPetTipo(PetTipo.GATO);
         pet.setPetSexo(PetSexo.MACHO);
         pet.setPetEndereco(endereco);
-        pet.setIdade("5");
-        pet.setPeso("4");
+        pet.setIdade(5);
+        pet.setPeso(new BigDecimal("4"));
         pet.setRaca("Siames");
         pet.setTutor(tutorSalvo);
         Pet petsalvo = petRepository.save(pet);

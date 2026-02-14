@@ -3,90 +3,33 @@ package com.example.gestaoPetApi.dto;
 import com.example.gestaoPetApi.model.PetEndereco;
 import com.example.gestaoPetApi.model.PetSexo;
 import com.example.gestaoPetApi.model.PetTipo;
+import jakarta.validation.constraints.*;
 
-public class PetCreateDto {
-    String nomePet;
-    PetTipo petTipo;
-    PetSexo petSexo;
-    PetEndereco petEndereco;
-    String idade;
-    String peso;
-    String raca;
+import java.math.BigDecimal;
 
-    Long tutorId;
+public record PetCreateDto(
+        @Pattern(
+                regexp = "^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)+$",
+                message = "O nome deve conter nome e sobrenome, e não pode ter caracteres especiais"
+        )
+        String nomePet,
 
-    public PetCreateDto(String nomePet, PetTipo petTipo, PetSexo petSexo, PetEndereco petEndereco, String idade, String peso, String raca, Long tutorId) {
-        this.nomePet = nomePet;
-        this.petTipo = petTipo;
-        this.petSexo = petSexo;
-        this.petEndereco = petEndereco;
-        this.idade = idade;
-        this.peso = peso;
-        this.raca = raca;
-        this.tutorId = tutorId;
-    }
+        PetTipo petTipo,
+        PetSexo petSexo,
+        PetEndereco petEndereco,
 
-    public String getNomePet() {
-        return nomePet;
-    }
+        @Max(value = 20, message = "A idade não pode ser maior que 20")
+        Integer idade,
 
-    public void setNomePet(String nomePet) {
-        this.nomePet = nomePet;
-    }
+        @DecimalMin(value = "0.5", message = "O peso não pode ser menor que 0.5")
+        @DecimalMax(value = "60", message = "O peso não pode ser maior que 60")
+        BigDecimal peso,
 
-    public PetTipo getPetTipo() {
-        return petTipo;
-    }
+        @Pattern(
+                regexp = "^[A-Za-zÀ-ÿ]+(\\s[A-Za-zÀ-ÿ]+)*$",
+                message = "A raça não pode conter caracteres especiais"
+        )
+        String raca,
 
-    public void setPetTipo(PetTipo petTipo) {
-        this.petTipo = petTipo;
-    }
-
-    public PetSexo getPetSexo() {
-        return petSexo;
-    }
-
-    public void setPetSexo(PetSexo petSexo) {
-        this.petSexo = petSexo;
-    }
-
-    public PetEndereco getPetEndereco() {
-        return petEndereco;
-    }
-
-    public void setPetEndereco(PetEndereco petEndereco) {
-        this.petEndereco = petEndereco;
-    }
-
-    public String getIdade() {
-        return idade;
-    }
-
-    public void setIdade(String idade) {
-        this.idade = idade;
-    }
-
-    public String getPeso() {
-        return peso;
-    }
-
-    public void setPeso(String peso) {
-        this.peso = peso;
-    }
-
-    public String getRaca() {
-        return raca;
-    }
-
-    public void setRaca(String raca) {
-        this.raca = raca;
-    }
-
-    public Long getTutorId() {
-        return tutorId;
-    }
-
-    public void setTutorId(Long tutorId) {
-        this.tutorId = tutorId;
-    }
+        Long tutorId) {
 }

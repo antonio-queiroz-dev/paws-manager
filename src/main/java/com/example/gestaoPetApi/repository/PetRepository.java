@@ -12,7 +12,7 @@ public interface PetRepository extends JpaRepository<Pet, Long> {
 
     List<Pet> findByNomePetContainingIgnoreCase(String nome);
     List<Pet> findByPetSexo(PetSexo sexo);
-    List<Pet> findByIdadeContainingIgnoreCase(String idade);
+    List<Pet> findByIdade(Integer idade);
     List<Pet> findByTutorId(Long tutorId);
 
 }

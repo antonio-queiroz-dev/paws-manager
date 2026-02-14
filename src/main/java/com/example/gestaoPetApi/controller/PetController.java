@@ -5,6 +5,7 @@ import com.example.gestaoPetApi.dto.PetResponseDto;
 import com.example.gestaoPetApi.dto.PetUpdateDto;
 import com.example.gestaoPetApi.model.Pet;
 import com.example.gestaoPetApi.service.PetService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class PetController {
     }
 
     @PostMapping
-    public ResponseEntity<PetResponseDto> cadastrarPet(@RequestBody PetCreateDto petdto) {
+    public ResponseEntity<PetResponseDto> cadastrarPet(@Valid @RequestBody PetCreateDto petdto) {
         Pet novoPet = petService.registrarPet(petdto);
 
         PetResponseDto response = new PetResponseDto(
@@ -40,7 +41,7 @@ public class PetController {
                 novoPet.getIdade(),
                 novoPet.getPeso(),
                 novoPet.getRaca(),
-                petdto.getTutorId()
+                petdto.tutorId()
                 );
 
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
@@ -78,7 +79,7 @@ public class PetController {
     }
 
     @GetMapping("/buscar/idade")
-    public ResponseEntity<List<PetResponseDto>> buscarPorIdade(@RequestParam String idade) {
+    public ResponseEntity<List<PetResponseDto>> buscarPorIdade(@RequestParam Integer idade) {
         List<PetResponseDto> petList = petService.buscarPorIdade(idade);
         return ResponseEntity.ok(petList);
     }
