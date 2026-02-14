@@ -54,7 +54,7 @@ public class PetService {
         }
 
         Tutor tutor = tutorRepository.findById(petCreate.tutorId())
-                .orElseThrow(()-> new RecursoNaoEcontradoException("Tutor não encontrado"));
+                .orElseThrow(() -> new RecursoNaoEcontradoException("Tutor não encontrado"));
 
         Pet pet = new Pet();
         pet.setNomePet(petCreate.nomePet());
@@ -71,13 +71,9 @@ public class PetService {
 
     @CacheEvict(value = "pets", allEntries = true)
     public Pet updatePet(Long id, PetUpdateDto petDetails) {
-        Optional<Pet> optionalPet = petRepository.findById(id);
 
-        if (optionalPet.isEmpty()) {
-            throw new RecursoNaoEcontradoException("Pet com o ID: " + id + " não encontrado");
-        }
-
-        Pet existingPet = optionalPet.get();
+        Pet existingPet = petRepository.findById(id).
+                orElseThrow(() -> new RecursoNaoEcontradoException("Pet com o ID: " + id + " não encontrado"));
 
         if (petDetails.nomePet() != null) {
             existingPet.setNomePet(petDetails.nomePet());
@@ -101,20 +97,12 @@ public class PetService {
     public List<PetResponseDto> buscarPorNome(String nome) {
         List<Pet> listaRetorno;
 
-        if (nome == null || nome.isBlank()) {
-            listaRetorno = petRepository.findAll();
-        }
-
         listaRetorno = petRepository.findByNomePetContainingIgnoreCase(nome);
         return listaRetorno.stream().map(this::toResponseDto).toList();
     }
 
     public List<PetResponseDto> buscarPorSexo(String sexo) {
         List<Pet> listaRetorno;
-
-        if (sexo == null || sexo.isBlank()) {
-            listaRetorno = petRepository.findAll();
-        }
 
         listaRetorno = petRepository.findByPetSexo(PetSexo.valueOf(sexo.toUpperCase()));
         return listaRetorno.stream().map(this::toResponseDto).toList();
@@ -123,11 +111,7 @@ public class PetService {
     public List<PetResponseDto> buscarPorIdade(Integer idade) {
         List<Pet> listarRetorno;
 
-        if (idade == null) {
-            listarRetorno = petRepository.findAll();
-        } else {
-            listarRetorno = petRepository.findByIdade(idade);
-        }
+        listarRetorno = petRepository.findByIdade(idade);
 
         return listarRetorno.stream().map(this::toResponseDto).toList();
     }
@@ -147,27 +131,13 @@ public class PetService {
 
         List<PetResponseDto> resultado = new ArrayList<>();
 
-        for (Pet pet: pets) {
-            PetResponseDto petResponseDto = converteParaDto(pet);
+        for (Pet pet : pets) {
+            PetResponseDto petResponseDto = toResponseDto(pet);
             resultado.add(petResponseDto);
         }
 
         return resultado;
 
-    }
-
-    private PetResponseDto converteParaDto(Pet pet) {
-        return new PetResponseDto(
-                pet.getId(),
-                pet.getNomePet(),
-                pet.getPetTipo(),
-                pet.getPetSexo(),
-                pet.getPetEndereco(),
-                pet.getIdade(),
-                pet.getPeso(),
-                pet.getRaca(),
-                pet.getTutor() != null ? pet.getTutor().getId() : null
-        );
     }
 
     @CacheEvict(value = "pets", allEntries = true)
