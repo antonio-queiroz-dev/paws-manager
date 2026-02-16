@@ -32,34 +32,70 @@ public class PetIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private PetRepository petRepository;
 
+    private Tutor tutorPadrao;
+    private static final String BASE_URL = "/api/pets";
+
     @BeforeEach
     void setUp() {
         petRepository.deleteAll();
         tutorRepository.deleteAll();
+
+        tutorPadrao = criarEsalvarTutor("João Silva", "joao@email.com", "11999999999");
     }
 
-    @Test
-    @DisplayName("Deve criar um pet com sucesso")
-    void deveCriarPetComSucesso() {
+    private Tutor criarEsalvarTutor(String nome, String email, String telefone) {
         Tutor tutor = new Tutor();
-        tutor.setNome("João Silva");
-        tutor.setEmail("joao@email.com");
-        tutor.setTelefone("11999999999");
-        Tutor tutorSalvo = tutorRepository.save(tutor);
+        tutor.setNome(nome);
+        tutor.setEmail(email);
+        tutor.setTelefone(telefone);
+        return tutorRepository.save(tutor);
+    }
 
+    private Pet criarESalvarPet(String nome, PetTipo tipo, PetSexo sexo, Integer idade,
+                                BigDecimal peso, String raca, Tutor tutor) {
+        Pet pet = new Pet();
+        pet.setNomePet(nome);
+        pet.setPetTipo(tipo);
+        pet.setPetSexo(sexo);
+        pet.setIdade(idade);
+        pet.setPeso(peso);
+        pet.setRaca(raca);
+        pet.setTutor(tutor);
+        return petRepository.save(pet);
+    }
 
-        PetCreateDto request = new PetCreateDto(
-                "José caça rato",
+    private PetCreateDto criarPetCreatDto(String nome, Long tutorId) {
+        return new PetCreateDto(
+                nome,
                 PetTipo.GATO,
                 PetSexo.MACHO,
                 5,
                 new BigDecimal("4.0"),
                 "Siames",
-                tutorSalvo.getId()
+                tutorId
+        );
+    }
+
+    private PetUpdateDto criarPetUpdateDto(String nome, Integer idade, BigDecimal peso, String raca) {
+        return new PetUpdateDto(
+                nome,
+                idade,
+                peso,
+                raca
+        );
+    }
+
+    @Test
+    @DisplayName("Deve criar um pet com sucesso")
+    void deveCriarPetComSucesso() {
+
+        PetCreateDto request = criarPetCreatDto(
+                "José caça rato",
+                tutorPadrao.getId()
         );
 
         ResponseEntity<PetResponseDto> response = restTemplate.postForEntity(
-                "/api/pets",
+                BASE_URL,
                 request,
                 PetResponseDto.class
         );
@@ -67,6 +103,9 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().nomePet()).isEqualTo(("José caça rato"));
+        assertThat(response.getBody().petTipo()).isEqualTo(PetTipo.GATO);
+
+        assertThat(petRepository.count()).isEqualTo(1);
     }
 
     @Test
@@ -74,24 +113,19 @@ public class PetIntegrationTest extends BaseIntegrationTest {
     void deveRetornar404CriarPetComTutorInexistente() {
 
 
-        PetCreateDto request = new PetCreateDto(
+        PetCreateDto request = criarPetCreatDto(
                 "José caça rato",
-                PetTipo.GATO,
-                PetSexo.MACHO,
-                5,
-                new BigDecimal("4.0"),
-                "Siames",
                 999L
         );
 
         ResponseEntity<PetResponseDto> response = restTemplate.postForEntity(
-                "/api/pets",
+                BASE_URL,
                 request,
                 PetResponseDto.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
-
+        assertThat(petRepository.count()).isEqualTo(0);
     }
 
     @Test
@@ -108,7 +142,7 @@ public class PetIntegrationTest extends BaseIntegrationTest {
                 999L
         );
         ResponseEntity<PetResponseDto> response = restTemplate.postForEntity(
-                "/api/pets",
+                BASE_URL,
                 request,
                 PetResponseDto.class
         );
@@ -119,187 +153,165 @@ public class PetIntegrationTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Deve buscar um pet por ID existente")
     void deveBuscarPetPorIdExistente() {
-        Tutor tutor = new Tutor();
-        tutor.setNome("João Silva");
-        tutor.setEmail("joao@email.com");
-        tutor.setTelefone("11999999999");
-        Tutor tutorSalvo = tutorRepository.save(tutor);
 
-        Pet petSalvo = new Pet();
-        petSalvo.setNomePet("José caça rato");
-        petSalvo.setPetTipo(PetTipo.GATO);
-        petSalvo.setPetSexo(PetSexo.MACHO);
-        petSalvo.setIdade(5);
-        petSalvo.setPeso(new BigDecimal("4.0"));
-        petSalvo.setRaca("Siames");
-        petSalvo.setTutor(tutorSalvo);
-        petRepository.save(petSalvo);
+        Pet petSalvo = criarESalvarPet(
+                "José caça rato",
+                PetTipo.GATO,
+                PetSexo.MACHO,
+                5,
+                new BigDecimal("4.0"),
+                "Siames",
+                tutorPadrao
+        );
 
 
         ResponseEntity<PetResponseDto> response = restTemplate.getForEntity(
-                "/api/pets/" + petSalvo.getId(),
+                BASE_URL + "/" + petSalvo.getId(),
                 PetResponseDto.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().nomePet()).isEqualTo(("José caça rato"));
+    }
+
+    @Test
+    @DisplayName("Deve retornar 404 ao buscar pet inexistente")
+    void deveRetornar404AoBuscarPetInexistente() {
+
+        ResponseEntity<PetResponseDto> response = restTemplate.getForEntity(
+                BASE_URL + "/" + 999,
+                PetResponseDto.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
     }
 
     @Test
     @DisplayName("Verificar se retorna todos os pets")
     void deveRetornarTodosPets() {
-        Tutor tutor1 = new Tutor();
-        tutor1.setNome("João Silva");
-        tutor1.setEmail("joao@email.com");
-        tutor1.setTelefone("11999999999");
-        Tutor tutorSalvo = tutorRepository.save(tutor1);
 
+        Tutor tutor2 = criarEsalvarTutor(
+                "Maria dos Santos",
+                "maria@email.com",
+                "11235467895");
 
-        Pet pet1Tutor1 = new Pet();
-        pet1Tutor1.setNomePet("José caça rato");
-        pet1Tutor1.setPetTipo(PetTipo.GATO);
-        pet1Tutor1.setPetSexo(PetSexo.MACHO);
-        pet1Tutor1.setIdade(5);
-        pet1Tutor1.setPeso(new BigDecimal("4.0"));
-        pet1Tutor1.setRaca("Siames");
-        pet1Tutor1.setTutor(tutorSalvo);
+        criarESalvarPet(
+                "José caça rato",
+                PetTipo.GATO, PetSexo.MACHO,
+                5,
+                new BigDecimal("4.0"),
+                "Siames",
+                tutorPadrao
+        );
 
-        petRepository.save(pet1Tutor1);
-
-        Tutor tutor2 = new Tutor();
-        tutor2.setNome("Maria dos Santos");
-        tutor2.setEmail("maria@email.com");
-        tutor2.setTelefone("11235467895");
-        Tutor tutorSalvo2 = tutorRepository.save(tutor2);
-
-        Pet pet1tutor2 = new Pet();
-        pet1tutor2.setNomePet("Marilina Santos");
-        pet1tutor2.setPetTipo(PetTipo.GATO);
-        pet1tutor2.setPetSexo(PetSexo.FEMEA);
-        pet1tutor2.setIdade(8);
-        pet1tutor2.setPeso(new BigDecimal("5.0"));
-        pet1tutor2.setRaca("Siames");
-        pet1tutor2.setTutor(tutorSalvo2);
-
-        petRepository.save(pet1tutor2);
+        criarESalvarPet(
+                "Mailina Santos",
+                PetTipo.GATO,
+                PetSexo.FEMEA,
+                8,
+                new BigDecimal("5.0"),
+                "Siames",
+                tutor2
+        );
 
         ResponseEntity<PetResponseDto[]> response = restTemplate.getForEntity(
-                "/api/pets",
+                BASE_URL,
                 PetResponseDto[].class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).hasSize(2);
+        assertThat(response.getBody())
+                .extracting(PetResponseDto::nomePet)
+                .containsExactlyInAnyOrder("José caça rato", "Mailina Santos");
     }
 
     @Test
     @DisplayName("Buscar pet de um tutor especifico")
     void deveBuscarPetDeUmTutorEspecifico() {
-        Tutor tutor1 = new Tutor();
-        tutor1.setNome("João Silva");
-        tutor1.setEmail("joao@email.com");
-        tutor1.setTelefone("11999999999");
-        Tutor tutorSalvo = tutorRepository.save(tutor1);
+        Tutor tutor2 = criarEsalvarTutor("Maria dos Santos", "maria@email.com", "11235467895");
 
+        criarESalvarPet("José caça rato",
+                PetTipo.GATO,
+                PetSexo.MACHO,
+                5,
+                new BigDecimal("4.0"),
+                "Siames",
+                tutorPadrao);
+        criarESalvarPet(
+                "Thor Silva",
+                PetTipo.GATO,
+                PetSexo.MACHO,
+                5,
+                new BigDecimal("4.0"),
+                "Siames",
+                tutorPadrao);
 
-        Pet pet1Tutor1 = new Pet();
-        pet1Tutor1.setNomePet("José caça rato");
-        pet1Tutor1.setPetTipo(PetTipo.GATO);
-        pet1Tutor1.setPetSexo(PetSexo.MACHO);
-        pet1Tutor1.setIdade(5);
-        pet1Tutor1.setPeso(new BigDecimal("4.0"));
-        pet1Tutor1.setRaca("Siames");
-        pet1Tutor1.setTutor(tutorSalvo);
-
-        petRepository.save(pet1Tutor1);
-
-        Pet pet2tutor1 = new Pet();
-        pet2tutor1.setNomePet("Thor Silva");
-        pet2tutor1.setPetTipo(PetTipo.CACHORRO);
-        pet2tutor1.setPetSexo(PetSexo.MACHO);
-        pet2tutor1.setIdade(10);
-        pet2tutor1.setPeso(new BigDecimal("9.0"));
-        pet2tutor1.setRaca("Caramelo");
-        pet2tutor1.setTutor(tutorSalvo);
-
-        petRepository.save(pet2tutor1);
-
-        Tutor tutor2 = new Tutor();
-        tutor2.setNome("Maria dos Santos");
-        tutor2.setEmail("maria@email.com");
-        tutor2.setTelefone("11235467895");
-        Tutor tutorSalvo2 = tutorRepository.save(tutor2);
-
-
-        Pet pet1tutor2 = new Pet();
-        pet1tutor2.setNomePet("Marilina");
-        pet1tutor2.setPetTipo(PetTipo.GATO);
-        pet1tutor2.setPetSexo(PetSexo.FEMEA);
-        pet1tutor2.setIdade(8);
-        pet1tutor2.setPeso(new BigDecimal("5.0"));
-        pet1tutor2.setRaca("Siames");
-        pet1tutor2.setTutor(tutorSalvo2);
-
-        petRepository.save(pet1tutor2);
+        criarESalvarPet(
+                "Marilina",
+                PetTipo.GATO,
+                PetSexo.FEMEA,
+                8,
+                new BigDecimal("5.0"),
+                "Siames", tutor2);
 
         ResponseEntity<PetResponseDto[]> response = restTemplate.getForEntity(
-                "/api/pets/tutor/" + tutorSalvo.getId(),
+                BASE_URL + "/tutor/" + tutorPadrao.getId(),
                 PetResponseDto[].class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody()).hasSize(2);
-        assertThat(response.getBody()[0].nomePet()).isIn("José caça rato", "Thor Silva");
-        assertThat(response.getBody()[1].nomePet()).isIn("José caça rato", "Thor Silva");
+        assertThat(response.getBody())
+                .extracting(PetResponseDto::nomePet)
+                .containsExactlyInAnyOrder("José caça rato", "Thor Silva");
     }
 
     @Test
     @DisplayName("Atualizar dados do Pet")
     void deveAtualizarDadosPet() {
-        Tutor tutor = new Tutor();
-        tutor.setNome("João Silva");
-        Tutor tutorSalvo = tutorRepository.save(tutor);
+        Pet petSalvo = criarESalvarPet(
+                "José caça rato",
+                PetTipo.GATO,
+                PetSexo.MACHO,
+                5,
+                new BigDecimal("4.0"),
+                "Siames",
+                tutorPadrao
+        );
 
-        Pet petSalvo = new Pet();
-        petSalvo.setNomePet("José caça rato");
-        petSalvo.setPetTipo(PetTipo.GATO);
-        petSalvo.setPetSexo(PetSexo.MACHO);
-        petSalvo.setIdade(5);
-        petSalvo.setPeso(new BigDecimal("4"));
-        petSalvo.setRaca("Siames");
-        petSalvo.setTutor(tutorSalvo);
-        Pet petAtualizado = petRepository.save(petSalvo);
-
-
-        PetUpdateDto dadosAtualizados = new PetUpdateDto(
+        PetUpdateDto dadosAtualizados = criarPetUpdateDto(
                 "José atualizado",
                 6,
                 new BigDecimal("7"),
                 "Persa"
         );
+
         HttpEntity<PetUpdateDto> requestEntity = new HttpEntity<>(dadosAtualizados);
 
         ResponseEntity<PetResponseDto> response = restTemplate.exchange(
-                "/api/pets/" + petSalvo.getId(),
+                BASE_URL+ "/" + petSalvo.getId(),
                 HttpMethod.PUT,
                 requestEntity,
                 PetResponseDto.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().nomePet()).isEqualTo("José atualizado");
         assertThat(response.getBody().raca()).isEqualTo("Persa");
         assertThat(response.getBody().idade()).isEqualTo(6);
-        assertThat(response.getBody().peso()).isEqualTo(new BigDecimal("7"));
+        assertThat(response.getBody().peso()).isEqualByComparingTo(new BigDecimal("7.0"));
     }
 
     @Test
     @DisplayName("Atualizar pet inexistente")
     void deveAtualizarPetInexistente() {
 
-        PetUpdateDto dadosAtualizados = new PetUpdateDto(
+        PetUpdateDto dadosAtualizados = criarPetUpdateDto(
                 "José atualizado",
                 6,
                 new BigDecimal("7"),
@@ -309,7 +321,7 @@ public class PetIntegrationTest extends BaseIntegrationTest {
         HttpEntity<PetUpdateDto> requestEntity = new HttpEntity<>(dadosAtualizados);
 
         ResponseEntity<PetResponseDto> response = restTemplate.exchange(
-                "/api/pets/" + 999,
+                BASE_URL + "/" + 999,
                 HttpMethod.PUT,
                 requestEntity,
                 PetResponseDto.class
@@ -321,37 +333,37 @@ public class PetIntegrationTest extends BaseIntegrationTest {
     @Test
     @DisplayName("Deletar pet existente")
     void deveDeletarPet() {
-        Tutor tutor = new Tutor();
-        tutor.setNome("João Silva");
-        Tutor tutorSalvo = tutorRepository.save(tutor);
 
-        Pet pet = new Pet();
-        pet.setNomePet("José caça rato");
-        pet.setPetTipo(PetTipo.GATO);
-        pet.setPetSexo(PetSexo.MACHO);
-        pet.setIdade(5);
-        pet.setPeso(new BigDecimal("4"));
-        pet.setRaca("Siames");
-        pet.setTutor(tutorSalvo);
-        Pet petsalvo = petRepository.save(pet);
+        Pet petSalvo = criarESalvarPet(
+                "José caça rato",
+                PetTipo.GATO,
+                PetSexo.MACHO,
+                5,
+                new BigDecimal("4.0"),
+                "Siames",
+                tutorPadrao
+        );
+
+        Long petId = petSalvo.getId();
 
         ResponseEntity<PetResponseDto> response = restTemplate.exchange(
-                "/api/pets/" + petsalvo.getId(),
+                BASE_URL + "/" + petId,
                 HttpMethod.DELETE,
                 null,
                 PetResponseDto.class
         );
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
-        assertThat(petRepository.findById(pet.getId())).isEmpty();
+        assertThat(petRepository.findById(petId)).isEmpty();
+        assertThat(petRepository.count()).isEqualTo(0);
     }
 
     @Test
     @DisplayName("Deletar pet inexistente")
     void deveDeletarPetInexistente() {
         ResponseEntity<PetResponseDto> response = restTemplate.exchange(
-                "/api/pets/" + 999
-                , HttpMethod.DELETE,
+                BASE_URL + "/" + 999,
+                HttpMethod.DELETE,
                 null,
                 PetResponseDto.class
         );
