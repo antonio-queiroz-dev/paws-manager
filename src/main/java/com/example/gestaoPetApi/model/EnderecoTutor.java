@@ -2,10 +2,8 @@ package com.example.gestaoPetApi.model;
 
 import jakarta.persistence.Embeddable;
 
-import java.io.Serializable;
-
 @Embeddable
-public class EnderecoTutor implements Serializable {
+public class EnderecoTutor {
 
     private String numeroCasa;
     private String cidade;

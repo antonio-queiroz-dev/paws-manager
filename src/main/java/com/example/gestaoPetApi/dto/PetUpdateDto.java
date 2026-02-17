@@ -1,6 +1,5 @@
 package com.example.gestaoPetApi.dto;
 
-import com.example.gestaoPetApi.model.EnderecoTutor;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;

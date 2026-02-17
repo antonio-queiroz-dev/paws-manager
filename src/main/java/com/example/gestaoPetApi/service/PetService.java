@@ -11,6 +11,7 @@ import com.example.gestaoPetApi.repository.PetRepository;
 import com.example.gestaoPetApi.repository.TutorRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,25 +28,15 @@ public class PetService {
         this.tutorRepository = tutorRepository;
     }
 
-    @Cacheable(value = "pets")
+    @Cacheable(value = "petsList", key = "'all'")
     public List<PetResponseDto> listarPets() {
-        return petRepository.findAll().stream().map(this::toResponseDto).toList();
+        return petRepository.findAll().stream()
+                .map(this::toResponseDto)
+                .toList();
     }
 
-    private PetResponseDto toResponseDto(Pet pet) {
-        return new PetResponseDto(
-                pet.getId(),
-                pet.getNomePet(),
-                pet.getPetTipo(),
-                pet.getPetSexo(),
-                pet.getIdade(),
-                pet.getPeso(),
-                pet.getRaca(),
-                pet.getTutor() != null ? pet.getTutor().getId() : null
-        );
-    }
 
-    @CacheEvict(value = "pets", allEntries = true)
+    @CacheEvict(value = "petsList", allEntries = true)
     public Pet registrarPet(PetCreateDto petCreate) {
         if (petCreate.tutorId() == null) {
             throw new RecursoNaoEcontradoException("Tutor deve ser informado");
@@ -66,7 +57,10 @@ public class PetService {
         return petRepository.save(pet);
     }
 
-    @CacheEvict(value = "pets", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "pets", key = "#id"),
+            @CacheEvict(value = "petsList", allEntries = true)
+    })
     public Pet updatePet(Long id, PetUpdateDto petDetails) {
 
         Pet existingPet = petRepository.findById(id).
@@ -88,33 +82,49 @@ public class PetService {
         return petRepository.save(existingPet);
     }
 
+    @Cacheable(value = "petsList", key = "'nome:' + #nome")
     public List<PetResponseDto> buscarPorNome(String nome) {
         List<Pet> listaRetorno;
 
-        listaRetorno = petRepository.findByNomePetContainingIgnoreCase(nome);
+        if (nome == null || nome.isBlank()) {
+            listaRetorno = petRepository.findAll();
+        } else {
+            listaRetorno = petRepository.findByNomePetContainingIgnoreCase(nome);
+        }
         return listaRetorno.stream().map(this::toResponseDto).toList();
     }
 
+    @Cacheable(value = "petsList", key = "'sexo:' + #sexo")
     public List<PetResponseDto> buscarPorSexo(String sexo) {
         List<Pet> listaRetorno;
 
-        listaRetorno = petRepository.findByPetSexo(PetSexo.valueOf(sexo.toUpperCase()));
+        if (sexo == null || sexo.isBlank()) {
+            listaRetorno = petRepository.findAll();
+        } else {
+            listaRetorno = petRepository.findByPetSexo(PetSexo.valueOf(sexo.toUpperCase()));
+        }
         return listaRetorno.stream().map(this::toResponseDto).toList();
     }
 
+    @Cacheable(value = "petsList", key = "'idade:' + #idade")
     public List<PetResponseDto> buscarPorIdade(Integer idade) {
         List<Pet> listarRetorno;
-
-        listarRetorno = petRepository.findByIdade(idade);
+        if (idade == null) {
+            listarRetorno = petRepository.findAll();
+        } else {
+            listarRetorno = petRepository.findByIdade(idade);
+        }
 
         return listarRetorno.stream().map(this::toResponseDto).toList();
     }
 
+    @Cacheable(value = "pets", key = "#id")
     public Pet buscarPorId(Long id) {
         return petRepository.findById(id)
                 .orElseThrow(() -> new RecursoNaoEcontradoException("Pet com o ID: " + id + " não encontrado"));
     }
 
+    @Cacheable(value = "petsList", key = "'tutor:' + #tutorId")
     public List<PetResponseDto> buscarPetsPorTutorId(Long tutorId) {
 
         if (!tutorRepository.existsById(tutorId)) {
@@ -134,12 +144,29 @@ public class PetService {
 
     }
 
-    @CacheEvict(value = "pets", allEntries = true)
+    @Caching(evict = {
+            @CacheEvict(value = "pets", key = "#id"),
+            @CacheEvict(value = "petsList", allEntries = true)
+    }
+    )
     public void deletarPet(Long id) {
 
         if (!petRepository.existsById(id)) {
             throw new RecursoNaoEcontradoException("Pet com o id: " + id + " não encontrado!");
         }
         petRepository.deleteById(id);
+    }
+
+    private PetResponseDto toResponseDto(Pet pet) {
+        return new PetResponseDto(
+                pet.getId(),
+                pet.getNomePet(),
+                pet.getPetTipo(),
+                pet.getPetSexo(),
+                pet.getIdade(),
+                pet.getPeso(),
+                pet.getRaca(),
+                pet.getTutor() != null ? pet.getTutor().getId() : null
+        );
     }
 }
