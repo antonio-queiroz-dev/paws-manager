@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "Tutores")
+@Table(name = "tutores")
 public class Tutor {
 
     @Id
@@ -36,6 +36,7 @@ public class Tutor {
         this.nome = nome;
         this.email = email;
         this.telefone = telefone;
+        this.enderecoTutor = enderecoTutor;
         this.pets = pets;
     }
 

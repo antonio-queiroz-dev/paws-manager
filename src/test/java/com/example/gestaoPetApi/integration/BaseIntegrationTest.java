@@ -8,10 +8,8 @@ import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-@Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 public abstract class BaseIntegrationTest {
@@ -19,17 +17,22 @@ public abstract class BaseIntegrationTest {
     @LocalServerPort
     protected int port;
 
-    @Container
-    static MySQLContainer<?> mySQLContainer =
-            new MySQLContainer<>("mysql:8.0")
-                    .withDatabaseName("testedb")
-                    .withUsername("test")
-                    .withPassword("test");
+    static final MySQLContainer<?> mySQLContainer;
+    static final GenericContainer<?> redisContainer;
 
-    @Container
-    static GenericContainer<?> redisContainer =
-            new GenericContainer<>(DockerImageName.parse("redis:latest"))
-                    .withExposedPorts(6379);
+    static {
+        mySQLContainer = new MySQLContainer<>("mysql:8.0")
+                .withDatabaseName("testedb")
+                .withUsername("test")
+                .withPassword("test");
+
+        redisContainer = new  GenericContainer<>(DockerImageName.parse("redis:latest"))
+                        .withExposedPorts(6379);
+
+
+        mySQLContainer.start();
+        redisContainer.start();
+    }
 
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
