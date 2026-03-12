@@ -65,7 +65,7 @@ O `docker-compose.yml` orquestra três containers com **healthcheck** configurad
 | `gestaopetapi_redis`    | redis:latest        | 6379   |
 | `gestaopetapi_backend`  | build local         | 8080   |
 
-![Docker containers](assets/Docker%20imagens.png)
+![Docker containers](pics/Docker%20imagens.png)
 
 ---
 
@@ -88,7 +88,7 @@ Com a aplicação rodando, acesse a documentação interativa para visualizar e 
 
 👉 **[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)**
 
-![Swagger UI](assets/Swagger.png)
+![Swagger UI](pics/Swagger.png)
 
 ---
 
@@ -166,7 +166,7 @@ O projeto segue uma arquitetura limpa em camadas:
 
 O projeto utiliza **JaCoCo** para gerar relatórios de cobertura de testes, integrado ao pipeline de CI.
 
-![jacoco](assets/jacoco.png)
+![jacoco](pics/jacoco.png)
 
 ---
 
