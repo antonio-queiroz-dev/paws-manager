@@ -1,4 +1,4 @@
-# 🐾 Gestão Pet API
+# 🐾 Paws manager
 
 [![CI](https://github.com/Antonio-scripts/gestao-pet-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Antonio-scripts/gestao-pet-api/actions/workflows/ci.yml)
 
@@ -38,8 +38,8 @@ a API automaticamente.
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/Antonio-scripts/gestao-pet-api.git
-   cd gestao-pet-api
+   git clone https://github.com/Antonio-scripts/paws-manager.git
+   cd paws-manager
    ```
 
 2. **Suba a aplicação:**
@@ -61,9 +61,9 @@ O `docker-compose.yml` orquestra três containers com **healthcheck** configurad
 
 | Container               | Imagem              | Porta  |
 |-------------------------|---------------------|--------|
-| `gestaopetapi_mysql`    | mysql:8.0           | 3306   |
-| `gestaopetapi_redis`    | redis:latest        | 6379   |
-| `gestaopetapi_backend`  | build local         | 8080   |
+| `pawsmanager.api_mysql`    | mysql:8.0           | 3306   |
+| `pawsmanager.api_redis`    | redis:latest        | 6379   |
+| `pawsmanager.api_backend`  | build local         | 8080   |
 
 ![Docker containers](pics/Docker%20imagens.png)
 
@@ -78,7 +78,7 @@ Caso queira rodar a aplicação via IDE (IntelliJ/Eclipse) para desenvolvimento:
    docker compose up -d mysql redis
    ```
 2. Configure sua IDE para usar o perfil `dev` (`-Dspring.profiles.active=dev`).
-3. Execute a classe `GestaoPetApiApplication`.
+3. Execute a classe `pawsmanager.apiApplication`.
 
 ---
 
