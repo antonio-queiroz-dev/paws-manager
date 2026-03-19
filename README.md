@@ -1,12 +1,11 @@
-# 🐾 Paws manager
+# 🐾 PawsManager
 
-[![CI](https://github.com/Antonio-scripts/gestao-pet-api/actions/workflows/ci.yml/badge.svg)](https://github.com/Antonio-scripts/gestao-pet-api/actions/workflows/ci.yml)
+[![CI](https://github.com/antonio-queiroz-dev/paws-manager/actions/workflows/ci.yml/badge.svg)](https://github.com/antonio-queiroz-dev/paws-manager/actions/workflows/ci.yml)
 
-API REST desenvolvida com **Spring Boot 3**, **Java 21** e **MySQL** para o gerenciamento eficiente de pets e tutores.
-O projeto adota práticas modernas de desenvolvimento, incluindo **Dockerização completa**, **Testes de Integração com
-Testcontainers**, **Cache com Redis** e documentação via **Swagger UI**.
+API REST desenvolvida com **Spring Boot 3**, **Java 21** e **MySQL** para o gerenciamento de pets e tutores em clínicas veterinárias.
+O projeto adota práticas modernas de desenvolvimento, incluindo **autenticação JWT**, **versionamento de banco com Flyway**, **Dockerização completa**, **Testes de Integração com Testcontainers**, **Cache com Redis** e documentação via **Swagger UI**.
 
----------------------------------------
+---
 
 ## 🚀 Tecnologias Utilizadas
 
@@ -15,30 +14,31 @@ Testcontainers**, **Cache com Redis** e documentação via **Swagger UI**.
     * Spring Web
     * Spring Data JPA
     * Spring Data Redis
+    * Spring Security
+* **Autenticação**: JWT (JSON Web Token)
 * **Banco de Dados**: MySQL 8
+* **Versionamento de Schema**: Flyway
 * **Cache**: Redis
 * **Containerização**: Docker & Docker Compose
-* **Testes**: JUnit 5 + Mockito (Unitários) · Testcontainers (Integração)
+* **Testes**: JUnit 5 + Mockito · Testcontainers
 * **Documentação**: SpringDoc OpenAPI (Swagger UI)
+* **CI**: GitHub Actions + JaCoCo
 * **Build**: Maven
 
 ---
 
 ## ⚙️ Pré-requisitos
 
-* **Docker Desktop** (Obrigatório)
+* **Docker Desktop**
 * **Git**
 
 ---
 
-## ▶️ Como Executar (Via Docker)
-
-A maneira mais simples de rodar a aplicação é utilizando o Docker Compose. Isso subirá o banco de dados, o cache Redis e
-a API automaticamente.
+## ▶️ Como Executar
 
 1. **Clone o repositório:**
    ```bash
-   git clone https://github.com/Antonio-scripts/paws-manager.git
+   git clone https://github.com/antonio-queiroz-dev/paws-manager.git
    cd paws-manager
    ```
 
@@ -46,45 +46,42 @@ a API automaticamente.
    ```bash
    docker compose up --build
    ```
-   *Aguarde alguns instantes até que todos os containers estejam saudáveis (healthy).*
+   *Aguarde até que todos os containers estejam prontos.*
 
 3. **Acesse a API:**
-   A aplicação estará rodando em: `http://localhost:8080`
+   `http://localhost:8080`
 
 ---
 
-## 🐳 Docker & Containerização
+## 🐳 Docker
 
-A aplicação é totalmente containerizada. O `Dockerfile` utiliza **multi-stage build**: a primeira etapa compila o projeto com Maven e a segunda gera uma imagem final enxuta baseada apenas no JRE, reduzindo o tamanho da imagem em produção.
+A aplicação roda em containers orquestrados pelo Docker Compose. O `Dockerfile` utiliza **multi-stage build**, gerando uma imagem final menor baseada apenas no JRE.
 
-O `docker-compose.yml` orquestra três containers com **healthcheck** configurado, garantindo que a API só suba após MySQL e Redis estarem prontos:
+Os três containers sobem com **healthcheck** configurado — a API só inicia após MySQL e Redis estarem prontos:
 
-| Container               | Imagem              | Porta  |
-|-------------------------|---------------------|--------|
-| `pawsmanager.api_mysql`    | mysql:8.0           | 3306   |
-| `pawsmanager.api_redis`    | redis:latest        | 6379   |
-| `pawsmanager.api_backend`  | build local         | 8080   |
+| Container             | Imagem       | Porta |
+|-----------------------|--------------|-------|
+| `pawsmanager_mysql`   | mysql:8.0    | 3306  |
+| `pawsmanager_redis`   | redis:latest | 6379  |
+| `pawsmanager_backend` | build local  | 8080  |
 
 ![Docker containers](pics/Docker%20imagens.png)
 
 ---
 
-## 💻 Desenvolvimento Local (Opcional)
+## 🔐 Autenticação
 
-Caso queira rodar a aplicação via IDE (IntelliJ/Eclipse) para desenvolvimento:
+A API utiliza **Spring Security com JWT**. Todas as rotas (exceto `/auth/**`) exigem autenticação.
 
-1. Suba apenas a infraestrutura (MySQL + Redis):
-   ```bash
-   docker compose up -d mysql redis
-   ```
-2. Configure sua IDE para usar o perfil `dev` (`-Dspring.profiles.active=dev`).
-3. Execute a classe `pawsmanager.apiApplication`.
+1. Registre um usuário: `POST /auth/register`
+2. Faça login e obtenha o token: `POST /auth/login`
+3. Envie o token no header: `Authorization: Bearer {token}`
 
 ---
 
 ## 📚 Documentação da API (Swagger)
 
-Com a aplicação rodando, acesse a documentação interativa para visualizar e testar todos os endpoints:
+Com a aplicação rodando, acesse e teste todos os endpoints:
 
 👉 **[http://localhost:8080/swagger-ui/index.html](http://localhost:8080/swagger-ui/index.html)**
 
@@ -92,40 +89,43 @@ Com a aplicação rodando, acesse a documentação interativa para visualizar e 
 
 ---
 
-## 🧠 Funcionalidades Principais
+## 🧠 Funcionalidades
 
 ### 🐶 Pets
 
-* **CRUD Completo**: Cadastro, listagem, atualização e remoção.
-* **Buscas Avançadas**: Por nome, sexo, idade e tutor.
-* **Validações de Negócio**:
-    * Idade máxima de 20 anos.
-    * Peso entre 0.5kg e 60kg.
-    * Validação de nome
+* CRUD completo
+* Busca por nome, sexo, idade e tutor
+* Validações: idade máxima de 20 anos, peso entre 0.5kg e 60kg
 
 ### 👤 Tutores
 
-* **CRUD Completo**.
-* **Validação Estrutural**: Uso de Bean Validation (`@NotBlank`, `@Email`).
+* CRUD completo
+* Validação de campos obrigatórios e formato de e-mail
 
 ---
 
-## ⚡ Performance e Cache
+## ⚡ Cache com Redis
 
-O projeto utiliza **Redis** para cachear consultas frequentes (`@Cacheable`), reduzindo a carga no banco de dados. O
-cache é invalidado automaticamente (`@CacheEvict`) quando dados são alterados, e possui um ttl de 30 minutos garantindo consistência.
+Consultas frequentes são armazenadas em cache com TTL de 30 minutos. O cache é invalidado automaticamente quando os dados são alterados, mantendo as respostas sempre consistentes.
 
 ---
 
-## 🧪 Testes Automatizados
+## 🗄️ Versionamento de Banco (Flyway)
 
-O projeto possui testes automatizados:
+Todas as alterações no banco de dados são feitas via arquivos SQL versionados, garantindo que qualquer ambiente — local, CI ou produção — sempre suba com o schema correto e atualizado.
 
-1. **Testes Unitários**: Validam a lógica de negócio isolada (Services) usando Mockito.
-2. **Testes de Integração**: Usam **Testcontainers** para subir um banco MySQL real e descartável durante os testes,
-   garantindo que a aplicação funcione de ponta a ponta.
+---
 
-Para rodar os testes (requer Java/Maven instalados):
+## 🧪 Testes
+
+O projeto conta com dois níveis de teste:
+
+* **Unitários**: validam a lógica de negócio de forma isolada usando Mockito
+* **Integração**: sobem um banco MySQL e Redis reais via Testcontainers, testando a aplicação de ponta a ponta
+
+A cobertura é monitorada via **JaCoCo**, integrado ao pipeline de CI.
+
+![jacoco](pics/jacoco.png)
 
 ```bash
 mvn test
@@ -133,40 +133,29 @@ mvn test
 
 ---
 
-## 🏗️ Arquitetura
+## 🏗️ Organização do Projeto
 
-O projeto segue uma arquitetura limpa em camadas:
-
-* **Controller**: Recebe as requisições HTTP, delega para o Service e retorna as respostas via DTOs.
-* **Service**: Contém a lógica de negócio, aplica validações e gerencia o cache com Redis.
-* **Repository**: Interface de acesso ao banco de dados via Spring Data JPA.
-* **DTOs (Records)**: Objetos de transferência de dados que desacoplam a API do modelo interno.
-* **Model**: Entidades JPA que representam as tabelas do banco de dados.
+O projeto é organizado por funcionalidade (package-by-feature). Cada domínio como `pet` e `tutor` contém todas as suas classes juntas, facilitando a navegação e manutenção do código.
 
 ---
 
 ## 🚧 Roadmap
 
-| Funcionalidades                      | status        |
-|--------------------------------------|---------------|
-| Criar testes unitarios               | **CONCLUÍDO** |
-| Criar testes de integração           | **CONCLUÍDO** |
-| Dockerizar completamente a aplicação | **CONCLUÍDO** |
-| Implementar Cache com Redis          | **CONCLUÍDO** |
-| Implementar CI/CD com GitHub Actions | **CONCLUÍDO** |
-| Relatório de cobertura com JaCoCo    | **CONCLUÍDO** |
-| Spring Security                      | *PENDENTE*    |
-| Implementar novos dominios           | *PENDENTE*    |
-| Implementar mensageria               | *PENDENTE*    |
-| Publicar na nuvem                    | *PENDENTE*    |
-
----
-
-## 📊 Cobertura de Testes (JaCoCo)
-
-O projeto utiliza **JaCoCo** para gerar relatórios de cobertura de testes, integrado ao pipeline de CI.
-
-![jacoco](pics/jacoco.png)
+| Funcionalidade                        | Status       |
+|---------------------------------------|--------------|
+| Testes unitários                      | ✅ Concluído |
+| Testes de integração (Testcontainers) | ✅ Concluído |
+| Cache com Redis                       | ✅ Concluído |
+| Dockerização completa                 | ✅ Concluído |
+| CI com GitHub Actions + JaCoCo        | ✅ Concluído |
+| Spring Security com JWT               | ✅ Concluído |
+| Reorganização package-by-feature      | ✅ Concluído |
+| Flyway (versionamento de schema)      | ✅ Concluído |
+| CI melhorado (build Docker + GHCR)    | 🔄 Em breve  |
+| Deploy na Oracle Cloud                | 🔄 Em breve  |
+| Paginação                             | 🔄 Em breve  |
+| Novos domínios (Clinic, Veterinarian) | 🔄 Em breve  |
+| Mensageria com RabbitMQ               | 🔄 Em breve  |
 
 ---
 
@@ -174,5 +163,4 @@ O projeto utiliza **JaCoCo** para gerar relatórios de cobertura de testes, inte
 
 Desenvolvido por **Antonio Queiroz**
 
-💼 [LinkedIn](https://www.linkedin.com/in/antonio-queiroz-dev/) | 🐙 [GitHub](https://github.com/Antonio-queiroz-dev
-)
+💼 [LinkedIn](https://www.linkedin.com/in/antonio-queiroz-dev/) | 🐙 [GitHub](https://github.com/antonio-queiroz-dev)
