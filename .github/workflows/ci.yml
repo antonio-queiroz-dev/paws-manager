@@ -22,7 +22,7 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: roda testes automatizados
+      - name: Executar testes automatizados
         run: mvn verify
 
       - name: publicar relatorio JaCoCo
