@@ -1,12 +1,13 @@
-name: CI - Gestão Pet API
+name: CI - Paws Manager
 
 on:
   push:
-    branches: [ main, springboot-migration ]
+    branches: [ main ]
   pull_request:
-    branches: [ main, springboot-migration ]
+    branches: [ main ]
 
 jobs:
+  # Job 1: Testes
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -30,3 +31,44 @@ jobs:
         with:
           name: jacoco-report
           path: target/site/jacoco/
+
+  # Job 2: Build Docker + Push GHCR
+
+
+  build-and-push:
+    needs: tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' # o build docker só acontece se o push for na branch main
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    permissions:
+      contents: read # permite a leitura do código do repositório
+      packages: write # permite publicar imagem no ghcr
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Login no GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extrair metadata (tags e label)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=sha,prefix=sha-,format=short
+            type=raw,value=latest
+
+      - name: Build e Push da imagem
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
