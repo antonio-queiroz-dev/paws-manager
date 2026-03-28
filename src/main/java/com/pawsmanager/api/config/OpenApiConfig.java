@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "Gestão Pet API", version = "1.0"),
+        info = @Info(title = "Paws Manager", version = "1.0"),
         security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
