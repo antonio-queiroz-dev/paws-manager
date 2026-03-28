@@ -3,6 +3,7 @@ package com.pawsmanager.api.config;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
+import io.swagger.v3.oas.annotations.info.Contact;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
@@ -10,7 +11,12 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "Paws Manager", version = "1.0"),
+        info = @Info(title = "Paws Manager",
+                version = "1.0",
+                description = "API REST desenvolvida com Spring Boot 3, Java 21 e MySQL",
+                contact = @Contact(
+                        name = "Antonio Queiroz",
+                        url = "https://www.linkedin.com/in/antonio-queiroz-dev")),
         security = @SecurityRequirement(name = "bearerAuth")
 )
 @SecurityScheme(
