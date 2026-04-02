@@ -43,7 +43,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             //extrai o email
             String email = jwtService.extractUsername(token);
 
+            // Verifica se o email foi extraído do token
+            // Verifica se o usuário está autenticado
             if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                // busca o usuário no banco de dados
                 User user = userRepository.findByEmail(email).orElse(null);
 
                 // verifica validade e expiração do token
@@ -55,11 +58,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                                     user.getAuthorities()
                             );
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    // registra o usuário autenticado no SecurityContext
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
         } catch (Exception e) {
-            // token inválido ou expirado — continua sem autenticar
+            // token inválido ou expirado continua sem autenticar
             // Spring Security retornará 401 via authenticationEntryPoint
         }
 
