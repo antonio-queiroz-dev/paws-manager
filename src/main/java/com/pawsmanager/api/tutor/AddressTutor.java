@@ -1,12 +1,16 @@
 package com.pawsmanager.api.tutor;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
 public class AddressTutor {
 
+    @Schema(example = "123")
     private String numeroCasa;
+    @Schema(example = "São Paulo")
     private String cidade;
+    @Schema(example = "Rua das Flores")
     private String rua;
 
     public String getNumeroCasa() {
